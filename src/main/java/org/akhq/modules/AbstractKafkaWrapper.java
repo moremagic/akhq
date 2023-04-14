@@ -253,11 +253,16 @@ abstract public class AbstractKafkaWrapper {
             this.logDirs.put(clusterId, Logger.call(
                 () -> {
                     try {
+                        DescribeLogDirsOptions describeLogDirsOptions = new DescribeLogDirsOptions();
+                        describeLogDirsOptions.timeoutMs(1000);
+
                         return kafkaModule.getAdminClient(clusterId)
-                            .describeLogDirs(this.describeCluster(clusterId).nodes().get()
-                                .stream()
-                                .map(Node::id)
-                                .collect(Collectors.toList())
+                            .describeLogDirs(
+                                this.describeCluster(clusterId).nodes().get()
+                                    .stream()
+                                    .map(Node::id)
+                                    .collect(Collectors.toList()),
+                                describeLogDirsOptions
                             )
                             .allDescriptions()
                             .get();
