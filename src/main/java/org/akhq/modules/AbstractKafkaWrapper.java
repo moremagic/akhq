@@ -248,16 +248,20 @@ abstract public class AbstractKafkaWrapper {
 
     private final Map<String, Map<Integer, Map<String, LogDirDescription>>> logDirs = new HashMap<>();
 
+    @CacheException
     public Map<Integer, Map<String, LogDirDescription>> describeLogDir(String clusterId) throws ExecutionException, InterruptedException {
         if (!this.logDirs.containsKey(clusterId)) {
             this.logDirs.put(clusterId, Logger.call(
                 () -> {
                     try {
+                        DescribeLogDirsOptions describeLogDirsOptions = new DescribeLogDirsOptions();
+                        describeLogDirsOptions.timeoutMs(1000);
                         return kafkaModule.getAdminClient(clusterId)
                             .describeLogDirs(this.describeCluster(clusterId).nodes().get()
                                 .stream()
                                 .map(Node::id)
-                                .collect(Collectors.toList())
+                                .collect(Collectors.toList()),
+                                describeLogDirsOptions
                             )
                             .allDescriptions()
                             .get();
