@@ -39,7 +39,7 @@ public class CacheExceptionInterceptor implements MethodInterceptor<String, Map>
             if( e.getCause() instanceof ApiException ){
                 LOG.trace("Exception cacheing key: {} value: {}", key, e.getCause());
                 cache.put(key, (ApiException) e.getCause());
-                if( e instanceof UnsupportedVersionException){
+                if( e.getCause() instanceof UnsupportedVersionException){
                     return new HashMap();
                 }
             }
