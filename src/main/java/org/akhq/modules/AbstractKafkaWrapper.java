@@ -254,19 +254,16 @@ abstract public class AbstractKafkaWrapper {
             this.logDirs.put(clusterId, Logger.call(
                 () -> {
                     try {
-                        DescribeLogDirsOptions describeLogDirsOptions = new DescribeLogDirsOptions();
-                        describeLogDirsOptions.timeoutMs(1000);
                         return kafkaModule.getAdminClient(clusterId)
                             .describeLogDirs(this.describeCluster(clusterId).nodes().get()
                                 .stream()
                                 .map(Node::id)
-                                .collect(Collectors.toList()),
-                                describeLogDirsOptions
+                                .collect(Collectors.toList())
                             )
                             .allDescriptions()
                             .get();
                     } catch (ExecutionException e) {
-                        if (e.getCause() instanceof ClusterAuthorizationException || e.getCause() instanceof TopicAuthorizationException || e.getCause() instanceof UnsupportedVersionException) {
+                        if (e.getCause() instanceof ClusterAuthorizationException || e.getCause() instanceof TopicAuthorizationException) {
                             return new HashMap<>();
                         }
 
@@ -287,6 +284,7 @@ abstract public class AbstractKafkaWrapper {
 
     private Map<String, Map<ConfigResource, Config>> describeConfigs = new HashMap<>();
 
+    @CacheException
     public Map<ConfigResource, Config> describeConfigs(String clusterId, ConfigResource.Type type, List<String> names) throws ExecutionException, InterruptedException {
         describeConfigs.computeIfAbsent(clusterId, s -> new HashMap<>());
 
