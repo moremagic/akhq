@@ -248,6 +248,7 @@ abstract public class AbstractKafkaWrapper {
 
     private final Map<String, Map<Integer, Map<String, LogDirDescription>>> logDirs = new HashMap<>();
 
+    @CacheException
     public Map<Integer, Map<String, LogDirDescription>> describeLogDir(String clusterId) throws ExecutionException, InterruptedException {
         if (!this.logDirs.containsKey(clusterId)) {
             this.logDirs.put(clusterId, Logger.call(
@@ -262,7 +263,7 @@ abstract public class AbstractKafkaWrapper {
                             .allDescriptions()
                             .get();
                     } catch (ExecutionException e) {
-                        if (e.getCause() instanceof ClusterAuthorizationException || e.getCause() instanceof TopicAuthorizationException || e.getCause() instanceof UnsupportedVersionException) {
+                        if (e.getCause() instanceof ClusterAuthorizationException || e.getCause() instanceof TopicAuthorizationException) {
                             return new HashMap<>();
                         }
 
@@ -283,6 +284,7 @@ abstract public class AbstractKafkaWrapper {
 
     private Map<String, Map<ConfigResource, Config>> describeConfigs = new HashMap<>();
 
+    @CacheException
     public Map<ConfigResource, Config> describeConfigs(String clusterId, ConfigResource.Type type, List<String> names) throws ExecutionException, InterruptedException {
         describeConfigs.computeIfAbsent(clusterId, s -> new HashMap<>());
 
